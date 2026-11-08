@@ -124,7 +124,8 @@ body {
 .chart { outline: none; }
 .chart:focus-visible { outline: 2px dashed var(--phosphor); outline-offset: 4px; }
 .chart svg { display: block; width: 100%; overflow: visible; }
-svg text { font-family: var(--display); font-size: 17px; fill: var(--phosphor-mid); }
+/* No CSS glow on chart labels: Safari draws text-shadow on SVG text in the wrong place, as ghost copies. */
+svg text { font-family: var(--display); font-size: 17px; fill: var(--phosphor-mid); text-shadow: none; }
 svg .evlabel { fill: var(--phosphor); }
 svg .endlabel { fill: var(--phosphor); font-size: 19px; }
 svg .empty { fill: var(--phosphor-mid); font-size: 20px; }
