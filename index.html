@@ -217,7 +217,7 @@ footer p { margin: 0; }
     <div class="chart" id="mood" tabindex="0" aria-label="Complaint timeline. Use the left and right arrow keys to move through the days, or open the table below."></div>
 
     <h2 class="panel-head panel-tests">what tests show <span class="leader" aria-hidden="true"></span> <span class="head-note">livenerf</span></h2>
-    <p class="panel-desc">How many of LiveNerf's 78 tricky questions Opus 5.5 gets right. Dotted: 7-day average. Squares: single days. Dashed: Opus 5, their control model.</p>
+    <p class="panel-desc">How many of LiveNerf's 78 tricky questions Opus 5.5 gets right, always on high effort and the launch version of Claude Code. Dotted: 7-day average. Squares: single days. Dashed: Opus 5, the control.</p>
     <div class="chart" id="tests" aria-hidden="true"></div>
 
     <div class="tip" id="tip" hidden></div>
@@ -241,6 +241,7 @@ footer p { margin: 0; }
       <p>Counting words is rough (one "degrades" was about auto mode, not the model). Most grumbling never makes it to GitHub. And two lines moving together doesn't mean one caused the other.</p>
       <p>The test scores come from LiveNerf. It asks Opus 5.5 the same 78 tricky questions every day through Claude Code, and 12 to Opus 5 as a control. It only calls something a real change if the shift is at least 3 points, holds for two 10-day windows in a row, and doesn't show up in the control too. Their scores start on 24 Sep.</p>
       <p>The test panel starts at 0%, so small wiggles look small.</p>
+      <p>How Claude feels depends on four things: the model, the effort setting, the app version and the task. LiveNerf freezes everything except the model. So if complaints go up and the tests stay flat, it's probably a setting, the app, or vibes. If the tests drop too, the model itself changed.</p>
       <p class="muted">Sources</p>
       <ul>
         <li><a href="https://github.com/anthropics/claude-code/issues" target="_blank" rel="noopener">Claude Code issues on GitHub</a></li>
