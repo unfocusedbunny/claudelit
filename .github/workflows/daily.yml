@@ -1,0 +1,34 @@
+# The alarm clock: wakes both robots once a day and saves what they found.
+name: daily robots
+
+on:
+  schedule:
+    - cron: "23 3 * * *"  # every day at 03:23 UTC, after LiveNerf's nightly run
+  workflow_dispatch:       # adds a "Run workflow" button for a manual run
+
+permissions:
+  contents: write  # lets the robots save new data into the repo
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: GitHub issues robot
+        run: python collectors/github_issues.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: LiveNerf robot
+        if: always()  # run even if the other robot failed
+        run: python collectors/livenerf.py
+      - name: Save new data
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Daily data $(date -u +%F)"
+          git push

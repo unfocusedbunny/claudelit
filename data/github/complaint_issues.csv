@@ -1,0 +1,48 @@
+date,number,title,url,matched_words,mentions_opus_5_5,state
+2026-09-22,95983,[Bug] Performance degradation and increased error rate in code generation,https://github.com/anthropics/claude-code/issues/95983,degradation,False,closed
+2026-09-22,96140,[Bug] Poor Code Generation Quality and Insufficient Task Completion,https://github.com/anthropics/claude-code/issues/96140,(near match),False,closed
+2026-09-22,96178,Opus 4.6 regression: hallucinating dates and degraded accuracy after recent update,https://github.com/anthropics/claude-code/issues/96178,degraded,False,open
+2026-09-22,96179,Opus 4.6 regression since ~Sep 16: hallucinating dates and degraded accuracy,https://github.com/anthropics/claude-code/issues/96179,degraded,False,open
+2026-09-22,96182,"Opus 4.6 regression since ~Sep 16 2026: precision loss, hallucinations, personality degradation",https://github.com/anthropics/claude-code/issues/96182,degradation,False,open
+2026-09-23,96205,[Bug] Opus 5.5 performance degradation - model output quality significantly below expected baseline,https://github.com/anthropics/claude-code/issues/96205,degradation; output quality,True,open
+2026-09-23,96267,[Bug] Output quality inconsistent: verbose technical jargon without summaries in multiple languages,https://github.com/anthropics/claude-code/issues/96267,output quality,False,open
+2026-09-23,96270,[Bug] Model Regression: Unverified Claims and Accuracy Degradation,https://github.com/anthropics/claude-code/issues/96270,degradation,False,closed
+2026-09-23,96292,Consumer rights complaint: Claude Pro service degradation without notice — Directive 2019/770 non-conformity,https://github.com/anthropics/claude-code/issues/96292,degradation,False,open
+2026-09-23,96308,Opus 4.6 regression: catastrophic output quality loss after context window summarization,https://github.com/anthropics/claude-code/issues/96308,output quality,False,open
+2026-09-24,96565,[FEATURE] Usage keeps getting worse,https://github.com/anthropics/claude-code/issues/96565,getting worse,False,closed
+2026-09-25,96939,[Bug] Poor output quality with high token consumption,https://github.com/anthropics/claude-code/issues/96939,output quality,False,closed
+2026-09-25,97097,[Bug] Model performance degradation during legitimate development work,https://github.com/anthropics/claude-code/issues/97097,degradation,False,open
+2026-09-25,97101,[Bug] Performance degradation across recent updates,https://github.com/anthropics/claude-code/issues/97101,degradation,False,closed
+2026-09-25,97218,"Sharp increase in background API activity (~30x API-min:wall-min) in long-running web sessions + response-quality degradation, with week-over-week baseline",https://github.com/anthropics/claude-code/issues/97218,degradation,False,open
+2026-09-26,97463,[Bug] Degraded Claude model performance: Increased error rate and missing critical details,https://github.com/anthropics/claude-code/issues/97463,degraded,True,open
+2026-09-28,97961,[Bug] Model performance degradation reported,https://github.com/anthropics/claude-code/issues/97961,degradation,False,closed
+2026-09-28,98016,[Bug] Agent workflow performance degradation on trivial tasks,https://github.com/anthropics/claude-code/issues/98016,degradation,False,closed
+2026-10-01,98805,[Bug] Claude Code degraded response quality and instruction following regression,https://github.com/anthropics/claude-code/issues/98805,degraded,False,open
+2026-10-02,98947,[Bug] Unexpected increase in API token usage and degraded performance,https://github.com/anthropics/claude-code/issues/98947,degraded,False,closed
+2026-10-05,99572,[Bug] Model performance degradation: Claude 5.5 Opus quality regressed to Opus 5 level,https://github.com/anthropics/claude-code/issues/99572,degradation,True,open
+2026-10-06,99860,[BUG]  Auto-compaction runs without user consent and degrades quality of long sessions,https://github.com/anthropics/claude-code/issues/99860,degrades,False,open
+2026-10-06,99986,[Bug] Model performance regression: Unexpected degradation in output quality,https://github.com/anthropics/claude-code/issues/99986,degradation; output quality,False,closed
+2026-10-07,100311,[Model behavior] Instruction adherence degrades after switching subscription from Pro to Max (second occurrence),https://github.com/anthropics/claude-code/issues/100311,degrades,False,open
+2026-10-07,100342,"Extreme quality degradation after Pro to Max switch: dropped fixes, flipped verdicts, unverified closures documented for 3rd time this year",https://github.com/anthropics/claude-code/issues/100342,degradation,True,open
+2026-10-08,100606,"[Bug] Opus model quality degraded significantly, suspected quantization change",https://github.com/anthropics/claude-code/issues/100606,degraded,False,open
+2026-10-09,100748,"Sustained quality regression, 7 Sep – 9 Oct 2026: agent abandons stated task, Romanian dictation leaks stale text, new-chat routing defect, model tier not honored",https://github.com/anthropics/claude-code/issues/100748,quality regression,True,open
+2026-10-11,101337,[Bug] Model behavior degradation: generating illogical code changes,https://github.com/anthropics/claude-code/issues/101337,degradation,False,open
+2026-10-14,101971,[BUG] Models getting dumber!,https://github.com/anthropics/claude-code/issues/101971,dumber,True,closed
+2026-10-14,102086,Bug Report: Session output quality get worse near weekly Limits,https://github.com/anthropics/claude-code/issues/102086,output quality,False,open
+2026-10-18,103286,[BUG] Context window compression silently degrades coordinator memory over time,https://github.com/anthropics/claude-code/issues/103286,degrades,False,open
+2026-10-19,103555,"[Bug] Severe quality degradation mid-session, suspected silent model switch",https://github.com/anthropics/claude-code/issues/103555,degradation,False,open
+2026-10-20,103750,[Bug] Output quality degradation in code generation over time,https://github.com/anthropics/claude-code/issues/103750,degradation; output quality,False,closed
+2026-10-22,104171,"wHY THE[Bug] Bug Report: Perceived model quality regression (""nerfed"" complaint)",https://github.com/anthropics/claude-code/issues/104171,nerfed; quality regression,False,open
+2026-10-23,104493,[Bug] Low output quality,https://github.com/anthropics/claude-code/issues/104493,output quality,False,closed
+2026-10-23,104708,[Bug] Claude Code produces low-quality fixes via trial-and-error iterations,https://github.com/anthropics/claude-code/issues/104708,low quality,False,closed
+2026-10-26,105271,"[Bug] Excessive token usage and degraded output quality, followed by API error",https://github.com/anthropics/claude-code/issues/105271,degraded; output quality,False,closed
+2026-10-28,105660,Bug Report: Model Output Perceived as Lazy and Low Quality,https://github.com/anthropics/claude-code/issues/105660,low quality,False,closed
+2026-11-01,106587,[Bug] Opus 5.5 performance degraded in long orchestration sessions,https://github.com/anthropics/claude-code/issues/106587,degraded,True,open
+2026-11-02,106660,[Bug] Poor Code Quality from Opus 5.5 and Fable 5.1 Models Despite Explicit Testing Instructions,https://github.com/anthropics/claude-code/issues/106660,(near match),True,open
+2026-11-02,106741,"[Bug] Opus 5.5 excessive token usage, ignores instructions, and produces low-quality output",https://github.com/anthropics/claude-code/issues/106741,low quality,True,open
+2026-11-02,106812,[Bug] Output quality regression: responses degraded to GPT-3.5-level,https://github.com/anthropics/claude-code/issues/106812,degraded; quality regression; output quality,False,open
+2026-11-03,106938,[Bug] Frequent incorrect self-acknowledged errors and quality regression over past two weeks,https://github.com/anthropics/claude-code/issues/106938,quality regression,False,open
+2026-11-03,107025,[Bug] Inconsistent output quality and faster-than-expected usage limit consumption,https://github.com/anthropics/claude-code/issues/107025,output quality,False,open
+2026-11-03,107049,"[Bug] Session quality degraded: poor assumptions, responses, and comprehension",https://github.com/anthropics/claude-code/issues/107049,degraded,False,open
+2026-11-05,107497,"[BUG] Auto mode degrades after short periods of reliability — reverts to Manual, ignores settings, blocks unattended runs",https://github.com/anthropics/claude-code/issues/107497,degrades,False,open
+2026-11-06,108042,Fable's long-session quality degrades: more rule violations per hour as the session grows,https://github.com/anthropics/claude-code/issues/108042,degrades,False,open

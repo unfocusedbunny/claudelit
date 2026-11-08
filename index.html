@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claudelit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Did Claude Opus 5.5 get worse? Online complaints next to measured test results, since launch day.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=VT323&display=swap">
+<style>
+/* Layout: one amber CRT tube. Two stacked panels share one timeline, event markers run through both, a terminal printout sits underneath. */
+:root {
+  --void: #000000;          /* outside the tube */
+  --screen: #070304;        /* tube glass */
+  --screen-hot: #120806;    /* glass centre, where the beam is brightest */
+  --phosphor: #fca848;      /* lit pixels */
+  --phosphor-mid: #cc7830;  /* secondary text and marks */
+  --phosphor-dim: #5a3214;  /* grid and rules */
+  --crimson: #7a0c2a;       /* text on lit blocks */
+  --bezel: #1d0e07;
+  --vignette: rgba(70, 22, 96, 0.35);
+  --scan: rgba(0, 0, 0, 0.32);
+  --bloom: rgba(252, 168, 72, 0.45);
+  --glow: 0 0 1px rgba(252, 168, 72, 0.9), 0 0 8px rgba(252, 140, 60, 0.45),
+          -0.6px 0 rgba(255, 40, 90, 0.28), 0.6px 0 rgba(70, 130, 255, 0.2);
+  --display: "VT323", "Courier New", monospace;
+  --body: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--void); }
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--phosphor);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+::selection { background: var(--phosphor); color: var(--crimson); }
+
+.crt {
+  position: relative;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-block: 30px 30px;
+  padding-inline: clamp(14px, 4vw, 44px);
+  border-radius: 28px;
+  background: radial-gradient(130% 100% at 50% 40%, var(--screen-hot) 0%, var(--screen) 55%, var(--void) 100%);
+  box-shadow: inset 0 0 140px var(--vignette), inset 0 0 30px var(--void), 0 0 0 1px var(--bezel);
+  overflow: hidden;
+  text-shadow: var(--glow);
+}
+.crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, var(--scan) 2px, var(--scan) 3px);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(44px, 14vw, 128px);
+  line-height: 0.8;
+  letter-spacing: 0.06em;
+}
+.question {
+  margin: 12px 0 18px;
+  max-width: 36ch;
+  font-family: var(--display);
+  font-size: clamp(23px, 3.2vw, 31px);
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.readout {
+  margin: 0 0 30px;
+  padding: 6px 12px 7px;
+  background: var(--phosphor);
+  color: var(--crimson);
+  text-shadow: none;
+  box-shadow: 0 0 18px var(--bloom);
+  font-family: var(--display);
+  font-size: clamp(19px, 2.4vw, 23px);
+  line-height: 1.15;
+  white-space: pre-line;
+}
+
+.scope { position: relative; }
+.panel-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 27px;
+  line-height: 1;
+}
+.leader { flex: 1; min-width: 24px; border-bottom: 2px dotted var(--phosphor-dim); transform: translateY(-5px); }
+.head-note { font-size: 20px; color: var(--phosphor-mid); }
+.panel-desc { margin: 6px 0 2px; max-width: 72ch; font-size: 13.5px; color: var(--phosphor-mid); }
+.panel-tests { margin-top: 26px; }
+
+.chart { outline: none; }
+.chart:focus-visible { outline: 2px dashed var(--phosphor); outline-offset: 4px; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+svg text { font-family: var(--display); font-size: 17px; fill: var(--phosphor-mid); }
+svg .evlabel { fill: var(--phosphor); }
+svg .endlabel { fill: var(--phosphor); font-size: 19px; }
+svg .empty { fill: var(--phosphor-mid); font-size: 20px; }
+svg .grid { stroke: var(--phosphor-dim); stroke-width: 1; fill: none; }
+svg .base { stroke: var(--phosphor-dim); stroke-width: 2; fill: none; }
+svg .event { stroke: var(--phosphor-mid); stroke-width: 1.2; stroke-dasharray: 2 4; fill: none; }
+svg .trace { stroke: var(--phosphor); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; fill: none; filter: url(#glow); }
+svg .px, svg .dot { fill: var(--phosphor); filter: url(#glow); }
+svg .cross { stroke: var(--phosphor); stroke-width: 1; fill: none; }
+svg .hit { fill: transparent; cursor: crosshair; }
+svg .trace-dots { stroke: var(--phosphor); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 0.1 6; fill: none; filter: url(#glow); }
+svg .trace-ctrl { stroke: var(--phosphor-mid); stroke-width: 1.4; stroke-dasharray: 7 5; fill: none; }
+svg .px-dim { fill: var(--phosphor-mid); }
+
+.tip {
+  position: absolute;
+  z-index: 6;
+  max-width: min(320px, 100%);
+  padding: 8px 10px;
+  pointer-events: none;
+  background: var(--screen);
+  border: 1px solid var(--phosphor);
+  box-shadow: 0 0 16px var(--bloom);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.tip .d { font-family: var(--display); font-size: 20px; line-height: 1.1; margin-bottom: 4px; }
+.tip .row { display: flex; justify-content: space-between; gap: 18px; font-variant-numeric: tabular-nums; }
+.tip .t { margin-top: 4px; color: var(--phosphor-mid); }
+
+.menu { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 30px; }
+.key {
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--phosphor);
+  font: 400 21px/1 var(--display);
+  text-shadow: inherit;
+  cursor: pointer;
+}
+.key kbd { font: inherit; }
+.key:hover, .key[aria-expanded="true"] { background: var(--phosphor); color: var(--crimson); text-shadow: none; box-shadow: 0 0 14px var(--bloom); }
+.key:focus-visible, a:focus-visible { outline: 2px dashed var(--phosphor); outline-offset: 3px; }
+
+.prompt { margin: 14px 0 0; font-family: var(--display); font-size: 22px; }
+.cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.9em;
+  margin-left: 2px;
+  vertical-align: -0.1em;
+  background: var(--phosphor);
+  box-shadow: 0 0 8px var(--bloom);
+  animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.printout > section {
+  max-height: 440px;
+  overflow: auto;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 2px dotted var(--phosphor-dim);
+  scrollbar-color: var(--phosphor-dim) transparent;
+}
+.printout table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.printout th, .printout td { padding: 3px 16px 3px 0; text-align: left; vertical-align: top; }
+.printout th {
+  position: sticky;
+  top: 0;
+  background: var(--screen);
+  color: var(--phosphor-mid);
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 19px;
+}
+.printout .num { text-align: right; }
+.printout .muted { color: var(--phosphor-mid); }
+.method p { max-width: 68ch; margin: 0 0 10px; }
+.method ul { margin: 0; padding-left: 2ch; max-width: 68ch; }
+a { color: var(--phosphor); text-decoration-style: dotted; text-underline-offset: 3px; }
+a:hover { background: var(--phosphor); color: var(--crimson); text-shadow: none; }
+
+footer { margin-top: 30px; font-size: 12.5px; color: var(--phosphor-mid); }
+footer p { margin: 0; }
+
+@media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+</style>
+</head>
+<body>
+<main class="crt">
+  <header>
+    <h1 class="title">CLAUDELIT</h1>
+    <p class="question">i'm checking if claude opus 5.5 got worse, or if i'm imagining it.</p>
+  </header>
+  <p class="readout" id="readout">&gt; loading data</p>
+
+  <div class="scope" id="scope">
+    <h2 class="panel-head">what people say <span class="leader" aria-hidden="true"></span> <span class="head-note">github issues</span></h2>
+    <p class="panel-desc">Share of new Claude Code issues that complain about quality (7-day average). Each square is one complaint.</p>
+    <div class="chart" id="mood" tabindex="0" aria-label="Complaint timeline. Use the left and right arrow keys to move through the days, or open the table below."></div>
+
+    <h2 class="panel-head panel-tests">what tests show <span class="leader" aria-hidden="true"></span> <span class="head-note">livenerf</span></h2>
+    <p class="panel-desc">How many of LiveNerf's 78 tricky questions Opus 5.5 gets right. Dotted: 7-day average. Squares: single days. Dashed: Opus 5, their control model.</p>
+    <div class="chart" id="tests" aria-hidden="true"></div>
+
+    <div class="tip" id="tip" hidden></div>
+  </div>
+
+  <nav class="menu" aria-label="Printouts">
+    <button class="key" type="button" aria-expanded="false" aria-controls="p-table" data-name="table"><kbd>[T]</kbd> table</button>
+    <button class="key" type="button" aria-expanded="false" aria-controls="p-issues" data-name="issues"><kbd>[I]</kbd> issues</button>
+    <button class="key" type="button" aria-expanded="false" aria-controls="p-events" data-name="events"><kbd>[E]</kbd> events</button>
+    <button class="key" type="button" aria-expanded="false" aria-controls="p-method" data-name="method"><kbd>[M]</kbd> method</button>
+  </nav>
+  <p class="prompt" aria-hidden="true">&gt; <span id="cmd"></span><span class="cursor"></span></p>
+
+  <div class="printout">
+    <section id="p-table" hidden></section>
+    <section id="p-issues" hidden></section>
+    <section id="p-events" hidden></section>
+    <section id="p-method" class="method" hidden>
+      <p>Every day a little robot asks GitHub two things: how many new issues did people open on the Claude Code repo, and how many have a complaint word in the title?</p>
+      <p>Complaint words: degraded, degradation, degrades, nerfed, dumber, got worse, getting worse, quality regression, low quality, poor quality, output quality.</p>
+      <p>Counting words is rough (one "degrades" was about auto mode, not the model). Most grumbling never makes it to GitHub. And two lines moving together doesn't mean one caused the other.</p>
+      <p>The test scores come from LiveNerf. It asks Opus 5.5 the same 78 tricky questions every day through Claude Code, and 12 to Opus 5 as a control. It only calls something a real change if the shift is at least 3 points, holds for two 10-day windows in a row, and doesn't show up in the control too. Their scores start on 24 Sep.</p>
+      <p>The test panel starts at 0%, so small wiggles look small.</p>
+      <p class="muted">Sources</p>
+      <ul>
+        <li><a href="https://github.com/anthropics/claude-code/issues" target="_blank" rel="noopener">Claude Code issues on GitHub</a></li>
+        <li><a href="https://github.com/ninjahawk/livenerf" target="_blank" rel="noopener">LiveNerf</a> by Nathan Langley (MIT licence)</li>
+        <li><a href="https://aistupidlevel.info" target="_blank" rel="noopener">AIStupidLevel</a> (coming later)</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>
+    <p>Made by Mimi, built with Claude. <span id="updated"></span></p>
+  </footer>
+  <noscript><p>This page needs JavaScript to draw the chart. The raw numbers are in the data folder.</p></noscript>
+</main>
+
+<script>
+const MON = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+const WD = ['sun','mon','tue','wed','thu','fri','sat'];
+const DAY = 864e5;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const utc = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+const iso = t => new Date(t).toISOString().slice(0, 10);
+const short = t => { const d = new Date(t); return `${d.getUTCDate()} ${MON[d.getUTCMonth()]}`; };
+const long = t => { const d = new Date(t); return `${WD[d.getUTCDay()]} ${d.getUTCDate()} ${MON[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+const pct = v => v == null ? 'n/a' : `${v.toFixed(2)}%`;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let S = null, lastW = 0, drawn = false;
+
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
+      else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(field); rows.push(row); row = []; field = '';
+    } else field += c;
+  }
+  if (field || row.length) { row.push(field); rows.push(row); }
+  const [head, ...body] = rows.filter(r => r.length > 1 || r[0]);
+  return body.map(r => Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])));
+}
+
+function prepare(daily, issues, events, livenerf) {
+  const days = daily.map(r => ({ t: utc(r.date), n: +r.new_issues, c: +r.complaint_issues })).sort((a, b) => a.t - b.t);
+  days.forEach((d, i) => {
+    d.s7 = null;
+    if (i < 6) return;
+    let n = 0, c = 0;
+    for (let k = i - 6; k <= i; k++) { n += days[k].n; c += days[k].c; }
+    if (n) d.s7 = 100 * c / n;
+  });
+  const gh = Object.fromEntries(days.map(d => [iso(d.t), d]));
+  const byDate = {};
+  issues.forEach(r => (byDate[r.date] ||= []).push(r));
+  const ev = events.map(r => ({ ...r, t: utc(r.date) })).sort((a, b) => a.t - b.t);
+
+  // LiveNerf: one score per day for Opus 5.5 (m) and the Opus 5 control (c), all question families together.
+  const ln = {};
+  livenerf.filter(r => r.family === 'all').forEach(r => {
+    const o = (ln[r.date_utc] ||= {}), k = r.arm === 'control' ? 'c' : 'm';
+    o[k] = +r.score;
+    o[k + 'n'] = +r.scored;
+  });
+  const lnDates = Object.keys(ln).sort();
+  const t0 = Math.min(days[0].t, ...lnDates.map(utc));
+  const end = Math.max(days.at(-1).t, ...lnDates.map(utc), ...ev.map(e => e.t));
+  const span = Math.round((end - t0) / DAY) + 1;
+  // 7-day average, weighted by questions scored; needs at least 5 test days in the window.
+  const roll = (i, k) => {
+    let s = 0, n = 0, count = 0;
+    for (let j = i - 6; j <= i; j++) {
+      const o = ln[iso(t0 + j * DAY)];
+      if (o && o[k] != null) { s += o[k] * o[k + 'n']; n += o[k + 'n']; count++; }
+    }
+    return count >= 5 && n ? s / n : null;
+  };
+  const m7 = [], c7 = [];
+  for (let i = 0; i < span; i++) { m7.push(roll(i, 'm')); c7.push(roll(i, 'c')); }
+  return { days, gh, issues, byDate, ev, ln, lnDates, m7, c7, t0, span, sel: null };
+}
+const idx = t => Math.round((t - S.t0) / DAY);
+
+function fillReadout() {
+  const n = S.days.reduce((a, d) => a + d.n, 0);
+  const c = S.days.reduce((a, d) => a + d.c, 0);
+  let best = 0, bestW = 0;
+  for (let w = 0; w * 7 < S.days.length; w++) {
+    const wc = S.days.slice(w * 7, w * 7 + 7).reduce((a, d) => a + d.c, 0);
+    if (wc > best) { best = wc; bestW = w; }
+  }
+  const a = S.t0 + bestW * 7 * DAY, b = Math.min(a + 6 * DAY, S.days.at(-1).t);
+  const when = bestW === 0 ? 'launch week' : `${short(a)} to ${short(b)}`;
+  let text = `> ${c} complaints out of ${n.toLocaleString('en-US')} new issues since launch. Grumpiest week: ${when} (${best}).`;
+  let updated = `GitHub data up to ${long(S.days.at(-1).t)}.`;
+  if (S.lnDates.length) {
+    const first = S.m7[idx(utc(S.lnDates[0])) + 6], now = S.m7[idx(utc(S.lnDates.at(-1)))];
+    if (first != null && now != null) text += `\n> The tests: Opus 5.5 gets ${Math.round(now * 100)}% right this week, ${Math.round(first * 100)}% in its first week.`;
+    updated += ` LiveNerf data up to ${long(utc(S.lnDates.at(-1)))}.`;
+  }
+  $('#readout').textContent = text;
+  $('#updated').textContent = updated + ' Days in UTC.';
+}
+
+function fillPrintouts() {
+  const score = (o, k) => o && o[k] != null ? `${Math.round(o[k] * 100)}%` : '';
+  let rows = '';
+  for (let i = 0; i < S.span; i++) {
+    const t = S.t0 + i * DAY, d = S.gh[iso(t)], o = S.ln[iso(t)];
+    rows += `<tr><td>${short(t)}</td><td class="num">${d ? d.n : ''}</td><td class="num">${d ? d.c : ''}</td><td class="num">${d ? pct(d.s7) : ''}</td><td class="num">${score(o, 'm')}</td><td class="num">${score(o, 'c')}</td></tr>`;
+  }
+  $('#p-table').innerHTML = `<table><thead><tr><th>date</th><th class="num">new issues</th><th class="num">complaints</th><th class="num">7-day share</th><th class="num">opus 5.5 test</th><th class="num">opus 5 control</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const link = (url, text) => /^https:\/\/github\.com\//.test(url) ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(text)}</a>` : esc(text);
+  $('#p-issues').innerHTML = `<table><thead><tr><th>date</th><th>issue</th><th>title</th><th>matched</th></tr></thead><tbody>${
+    S.issues.map(r => `<tr><td>${short(utc(r.date))}</td><td>${link(r.url, '#' + r.number)}</td><td>${esc(r.title)}</td><td class="muted">${esc(r.matched_words)}</td></tr>`).join('')
+  }</tbody></table>`;
+  $('#p-events').innerHTML = `<table><thead><tr><th>date</th><th>what happened</th><th>source</th></tr></thead><tbody>${
+    S.ev.map(e => `<tr><td>${short(e.t)}</td><td>${esc(e.detail)}</td><td class="muted">${/^https:\/\//.test(e.source_url) ? `<a href="${esc(e.source_url)}" target="_blank" rel="noopener">${esc(e.source)}</a>` : esc(e.source)}</td></tr>`).join('')
+  }</tbody></table>`;
+}
+
+function render() {
+  const w = Math.round($('#scope').clientWidth);
+  if (!S || !w || w === lastW) return;
+  lastW = w;
+  const ml = 46, mr = 14, W = w - ml - mr, step = W / S.span;
+  const X = i => ml + (i + 0.5) * step;
+  const xOf = t => X(Math.round((t - S.t0) / DAY));
+  S.geo = { ml, step, X };
+  const weekLines = (y1, y2) => { let s = ''; for (let i = 0; i < S.span; i += 7) s += `<line class="grid" x1="${X(i)}" x2="${X(i)}" y1="${y1}" y2="${y2}"/>`; return s; };
+  const eventLines = (y1, y2) => S.ev.map(e => `<line class="event" x1="${xOf(e.t)}" x2="${xOf(e.t)}" y1="${y1}" y2="${y2}"/>`).join('');
+
+  // Panel 1: the mood line, with one pixel per complaint underneath.
+  const H1 = 238, top = 44, bot = 178, sBot = 230;
+  const maxS = Math.max(...S.days.map(d => d.s7 ?? 0));
+  const yStep = maxS <= 2 ? 0.5 : 1;
+  const yMax = Math.max(yStep, Math.ceil(maxS / yStep) * yStep);
+  const Y = v => bot - (v / yMax) * (bot - top);
+  let g = `<defs><filter id="glow" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  g += weekLines(top, sBot);
+  for (let v = 0; v <= yMax + 1e-9; v += yStep) {
+    g += `<line class="grid" x1="${ml}" x2="${w - mr}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${ml - 8}" y="${Y(v) + 5}" text-anchor="end">${+v.toFixed(2)}%</text>`;
+  }
+  g += eventLines(top - 8, sBot);
+  g += S.ev.map(e => `<text class="evlabel" data-x="${xOf(e.t)}" x="${xOf(e.t)}" y="14">${esc(e.label)}</text>`).join('');
+  const pts = [];
+  S.days.forEach(d => { if (d.s7 != null) pts.push([X(idx(d.t)), Y(d.s7)]); });
+  g += `<path class="trace" d="M${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('L')}"/>`;
+  const last = pts.at(-1);
+  g += `<circle class="dot" cx="${last[0]}" cy="${last[1]}" r="3.5"/><text class="endlabel" x="${last[0] - 8}" y="${last[1] - 10}" text-anchor="end">${pct(S.days.at(-1).s7)}</text>`;
+  const sz = Math.max(3, Math.min(6, step - 2));
+  S.days.forEach(d => { for (let k = 0; k < d.c; k++) g += `<rect class="px" x="${X(idx(d.t)) - sz / 2}" y="${sBot - (k + 1) * (sz + 2)}" width="${sz}" height="${sz}"/>`; });
+  g += `<line class="base" x1="${ml}" x2="${w - mr}" y1="${sBot + 1}" y2="${sBot + 1}"/>`;
+  g += `<line class="cross" x1="0" x2="0" y1="${top - 8}" y2="${sBot}" visibility="hidden"/>`;
+  g += `<rect class="hit" x="${ml}" y="0" width="${W}" height="${H1}"/>`;
+  $('#mood').innerHTML = `<svg width="${w}" height="${H1}" viewBox="0 0 ${w} ${H1}" role="presentation">${g}</svg>`;
+
+  // Event labels: keep inside the frame, and drop to a second row when two would overlap.
+  let rowEnd = [-Infinity, -Infinity];
+  $('#mood').querySelectorAll('.evlabel').forEach(el => {
+    const len = el.getComputedTextLength();
+    const left = Math.max(0, Math.min(w - len, +el.dataset.x - len / 2));
+    const row = left > rowEnd[0] + 10 ? 0 : 1;
+    el.setAttribute('x', left);
+    el.setAttribute('y', row ? 32 : 14);
+    rowEnd[row] = left + len;
+  });
+
+  // Panel 2: LiveNerf test scores, on a 0 to 100% scale.
+  const H2 = 176, t2 = 10, b2 = 142;
+  const Y2 = v => b2 - v * (b2 - t2);
+  let h = weekLines(t2, b2);
+  [0, 0.5, 1].forEach(v => { h += `<line class="grid" x1="${ml}" x2="${w - mr}" y1="${Y2(v)}" y2="${Y2(v)}"/><text x="${ml - 8}" y="${Y2(v) + 5}" text-anchor="end">${v * 100}%</text>`; });
+  h += eventLines(t2, b2);
+  h += `<line class="base" x1="${ml}" x2="${w - mr}" y1="${b2 + 1}" y2="${b2 + 1}"/>`;
+  if (S.lnDates.length) {
+    const path = series => {
+      let d = '', pen = false;
+      series.forEach((v, i) => { if (v == null) { pen = false; return; } d += `${pen ? 'L' : 'M'}${X(i).toFixed(1)},${Y2(v).toFixed(1)}`; pen = true; });
+      return d;
+    };
+    const dot = Math.max(2.5, Math.min(4, step - 2));
+    S.lnDates.forEach(k => { const o = S.ln[k]; if (o.m != null) h += `<rect class="px-dim" x="${X(idx(utc(k))) - dot / 2}" y="${Y2(o.m) - dot / 2}" width="${dot}" height="${dot}"/>`; });
+    h += `<path class="trace-ctrl" d="${path(S.c7)}"/><path class="trace-dots" d="${path(S.m7)}"/>`;
+    const lastI = S.m7.length - 1 - [...S.m7].reverse().findIndex(v => v != null);
+    const lastC = S.c7.length - 1 - [...S.c7].reverse().findIndex(v => v != null);
+    h += `<text class="endlabel" x="${X(lastI) - 8}" y="${Y2(S.m7[lastI]) + 24}" text-anchor="end">opus 5.5 ${Math.round(S.m7[lastI] * 100)}%</text>`;
+    h += `<text x="${X(lastC) - 8}" y="${Y2(S.c7[lastC]) - 10}" text-anchor="end">opus 5 ${Math.round(S.c7[lastC] * 100)}%</text>`;
+  } else {
+    h += `<text class="empty" x="${ml + W / 2}" y="${(t2 + b2) / 2 + 6}" text-anchor="middle">no test data yet</text>`;
+  }
+  const every = W < 420 ? 14 : 7;
+  for (let i = 0; i < S.span; i += every) h += `<text x="${X(i)}" y="${b2 + 24}" text-anchor="middle">${short(S.t0 + i * DAY)}</text>`;
+  h += `<line class="cross" x1="0" x2="0" y1="${t2}" y2="${b2}" visibility="hidden"/>`;
+  h += `<rect class="hit" x="${ml}" y="0" width="${W}" height="${b2}"/>`;
+  $('#tests').innerHTML = `<svg width="${w}" height="${H2}" viewBox="0 0 ${w} ${H2}" role="presentation">${h}</svg>`;
+
+  document.querySelectorAll('.chart .hit').forEach(hit => {
+    hit.addEventListener('pointermove', e => {
+      const r = hit.ownerSVGElement.getBoundingClientRect();
+      show(Math.floor((e.clientX - r.left - ml) / step), hit.closest('.chart'));
+    });
+    hit.addEventListener('pointerleave', hide);
+  });
+
+  // The one moment of motion: the trace draws in like an oscilloscope.
+  if (!drawn && !reduceMotion) {
+    const p = $('#mood .trace'), len = p.getTotalLength();
+    p.style.strokeDasharray = len;
+    p.style.strokeDashoffset = len;
+    p.getBoundingClientRect();
+    p.style.transition = 'stroke-dashoffset 1.6s cubic-bezier(.25,.6,.25,1)';
+    p.style.strokeDashoffset = 0;
+  }
+  drawn = true;
+  if (S.sel != null) show(S.sel, $('#mood'));
+}
+
+function show(i, chart) {
+  i = Math.max(0, Math.min(S.span - 1, i));
+  S.sel = i;
+  const x = S.geo.X(i), t = S.t0 + i * DAY, key = iso(t), d = S.gh[key], o = S.ln[key];
+  document.querySelectorAll('.cross').forEach(l => { l.setAttribute('x1', x); l.setAttribute('x2', x); l.setAttribute('visibility', 'visible'); });
+  const row = (k, v) => `<div class="row"><span>${k}</span><span>${v}</span></div>`;
+  let h = `<div class="d">${long(t)}</div>`;
+  if (d) h += row('new issues', d.n.toLocaleString('en-US')) + row('complaints', d.c) + row('7-day share', pct(d.s7));
+  if (o && o.m != null) h += row('opus 5.5 test', `${Math.round(o.m * 100)}% of ${o.mn}`);
+  if (o && o.c != null) h += row('opus 5 control', `${Math.round(o.c * 100)}% of ${o.cn}`);
+  if (!d && !o) h += `<div class="t">no data for this day yet</div>`;
+  S.ev.filter(e => e.date === key).forEach(e => { h += `<div class="t">event: ${esc(e.detail)}</div>`; });
+  const list = S.byDate[key] || [];
+  list.slice(0, 3).forEach(r => { h += `<div class="t">▪ ${esc(r.title)}</div>`; });
+  if (list.length > 3) h += `<div class="t">and ${list.length - 3} more</div>`;
+  const tip = $('#tip');
+  tip.innerHTML = h;
+  tip.hidden = false;
+  const sw = $('#scope').clientWidth, tw = tip.offsetWidth;
+  let left = x + 16;
+  if (left + tw > sw) left = x - tw - 16;
+  tip.style.left = Math.max(0, left) + 'px';
+  tip.style.top = (chart.offsetTop + 48) + 'px';
+}
+
+function hide() {
+  S.sel = null;
+  $('#tip').hidden = true;
+  document.querySelectorAll('.cross').forEach(l => l.setAttribute('visibility', 'hidden'));
+}
+
+const mood = $('#mood');
+mood.addEventListener('focus', () => { if (S) show(idx(S.days.at(-1).t), mood); });
+mood.addEventListener('blur', () => { if (S) hide(); });
+mood.addEventListener('keydown', e => {
+  if (!S || S.sel == null) return;
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); show(S.sel + (e.key === 'ArrowLeft' ? -1 : 1), mood); }
+  if (e.key === 'Escape') hide();
+});
+
+// Printouts: one open at a time, by click or by key.
+const keys = { t: 'p-table', i: 'p-issues', e: 'p-events', m: 'p-method' };
+function toggle(id) {
+  let open = '';
+  document.querySelectorAll('.key').forEach(b => {
+    const on = b.getAttribute('aria-controls') === id && b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', on);
+    document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
+    if (on) open = 'show ' + b.dataset.name;
+  });
+  $('#cmd').textContent = open;
+}
+document.querySelectorAll('.key').forEach(b => b.addEventListener('click', () => toggle(b.getAttribute('aria-controls'))));
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea|select/i.test(e.target.tagName)) return;
+  const id = keys[e.key.toLowerCase()];
+  if (id) toggle(id);
+  else if (e.key === 'Escape') toggle('');
+});
+
+async function load() {
+  try {
+    const get = p => fetch(p).then(r => { if (!r.ok) throw new Error(p); return r.text(); });
+    const [daily, issues, events, livenerf] = await Promise.all([
+      get('data/github/daily.csv'), get('data/github/complaint_issues.csv'), get('data/events.csv'),
+      get('data/livenerf/daily.csv').catch(() => ''),  // the page still works without test data
+    ]);
+    S = prepare(parseCSV(daily), parseCSV(issues), parseCSV(events), parseCSV(livenerf));
+    fillReadout();
+    fillPrintouts();
+    await document.fonts.ready;
+    new ResizeObserver(render).observe($('#scope'));
+  } catch (err) {
+    $('#readout').textContent = "> Couldn't load the data files. Open this page through a web server (like GitHub Pages), not straight from your disk.";
+  }
+}
+load();
+</script>
+</body>
+</html>
