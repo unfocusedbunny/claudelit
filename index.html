@@ -73,6 +73,17 @@ body {
   line-height: 0.8;
   letter-spacing: 0.06em;
 }
+.title-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 14px; }
+.star { font-size: 0.42em; vertical-align: top; margin-left: 0.04em; }
+.aside {
+  margin: 0.4em 0 0;
+  max-width: 13ch;
+  color: var(--phosphor-mid);
+  font-family: var(--display);
+  font-size: clamp(18px, 2vw, 21px);
+  line-height: 1.05;
+}
+@media (max-width: 560px) { .aside { max-width: none; margin-top: 0; } }
 .question {
   margin: 12px 0 18px;
   max-width: 36ch;
@@ -206,7 +217,10 @@ footer p { margin: 0; }
 <body>
 <main class="crt">
   <header>
-    <h1 class="title">CLAUDELIT</h1>
+    <div class="title-row">
+      <h1 class="title">CLAUDELIT<span class="star" aria-hidden="true">*</span></h1>
+      <p class="aside">* as in gaslit but by claude</p>
+    </div>
     <p class="question">i'm checking if claude opus 5.5 got worse, or if i'm imagining it.</p>
   </header>
   <p class="readout" id="readout">&gt; loading data</p>
