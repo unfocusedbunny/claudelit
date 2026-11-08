@@ -21,4 +21,10 @@ The page puts both on one timeline: [unfocusedbunny.github.io/claudelit](https:/
 
 Counting complaint words is rough, and two lines moving together doesn't mean one caused the other. The method is on the page under [M].
 
-Made by Mimi, built with Claude. Test data by [LiveNerf](https://github.com/ninjahawk/livenerf) (MIT).
+Made by Mimi, built with Claude. An independent project, not affiliated with or endorsed by Anthropic.
+
+## Licences
+
+- The code is MIT (see `LICENSE`).
+- `data/livenerf/` comes from [LiveNerf](https://github.com/ninjahawk/livenerf), MIT, see `data/livenerf/LICENSE`.
+- Issue titles in `data/github/` belong to their authors and link back to the original issues. No usernames are stored.
