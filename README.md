@@ -7,7 +7,7 @@ Every day two little robots collect:
 - **what people say**: issues on the Claude Code GitHub that complain about quality
 - **what tests show**: daily scores from [LiveNerf](https://github.com/ninjahawk/livenerf)
 
-The page puts both on one timeline: [page link]
+The page puts both on one timeline: [unfocusedbunny.github.io/claudelit](https://unfocusedbunny.github.io/claudelit/)
 
 ## What's in here
 
