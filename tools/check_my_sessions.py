@@ -14,10 +14,15 @@ Run:   python3 check_my_sessions.py
 Also:  python3 check_my_sessions.py --by week        (group by week instead of experiment)
        python3 check_my_sessions.py --csv summary.csv  (save the table, numbers only)
        python3 check_my_sessions.py --dir PATH         (if your sessions live somewhere else)
+       python3 check_my_sessions.py --full-ids         (show whole IDs, not just the first 3 characters)
 
-How it works: Claude Code saves each session as a .jsonl file in ~/.claude/projects/.
-Lines of type "atis-latch" record the experiment ID that was active (empty = none).
-Every reply after that line counts toward that ID until the next one.
+How it works:
+  - Right now: ~/.claude.json caches the current experiment ID per app and model
+    ("clientDataCacheSlots", field data.atis). No ID there means no experiment.
+  - History: Claude Code saves each session as a .jsonl file in ~/.claude/projects/.
+    Lines of type "atis-latch" record the experiment ID that was active (empty = none).
+    Every reply after that line counts toward that ID until the next one.
+IDs are shortened to their first 3 characters by default, the way people compare them online.
 """
 import argparse
 import csv
@@ -35,6 +40,33 @@ NOT_RECORDED = "not recorded"  # older sessions, from before Claude Code wrote t
 def default_dir():
     base = os.environ.get("CLAUDE_CONFIG_DIR")
     return Path(base) / "projects" if base else Path.home() / ".claude" / "projects"
+
+
+def default_config():
+    base = os.environ.get("CLAUDE_CONFIG_DIR")
+    return Path(base) / ".claude.json" if base else Path.home() / ".claude.json"
+
+
+def short(exp_id, full):
+    return exp_id if full or exp_id in (NO_ID, NOT_RECORDED) else exp_id[:3]
+
+
+def current_ids(config_path, full):
+    """The newest cached experiment ID per app and model, for the account you're logged in with."""
+    try:
+        cfg = json.loads(Path(config_path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    org = (cfg.get("oauthAccount") or {}).get("organizationUuid")
+    slots = cfg.get("clientDataCacheSlots") or {}
+    newest = {}
+    for s in (slots.values() if isinstance(slots, dict) else slots):
+        if not isinstance(s, dict) or (org and s.get("org") != org):
+            continue
+        key = (s.get("entrypoint") or "?", s.get("model") or "?")
+        if key not in newest or (s.get("at") or 0) > (newest[key].get("at") or 0):
+            newest[key] = s
+    return [(app, model, short((s.get("data") or {}).get("atis") or NO_ID, full)) for (app, model), s in sorted(newest.items())]
 
 
 def read_replies(files, model):
@@ -85,7 +117,7 @@ def week_of(day):
         return "unknown"
 
 
-def summarise(replies, by):
+def summarise(replies, by, full):
     groups = defaultdict(list)
     for r in replies:
         groups[r["id"] if by == "id" else week_of(r["day"])].append(r)
@@ -95,7 +127,7 @@ def summarise(replies, by):
         days = sorted(r["day"] for r in rs if r["day"])
         efforts = Counter(r["effort"] for r in rs)
         rows.append({
-            "group": key,
+            "group": short(key, full) if by == "id" else key,
             "from": days[0] if days else "",
             "to": days[-1] if days else "",
             "replies": len(rs),
@@ -126,17 +158,32 @@ def main():
     p.add_argument("--model", default="opus-5-5", help="only count replies from models whose name contains this (default: opus-5-5)")
     p.add_argument("--by", choices=["id", "week"], default="id", help="group by experiment ID (default) or by week")
     p.add_argument("--csv", type=Path, help="also save the table as a CSV file (numbers only)")
+    p.add_argument("--config", type=Path, default=default_config(), help="Claude Code's settings file (default: ~/.claude.json)")
+    p.add_argument("--full-ids", action="store_true", help="show whole experiment IDs instead of the first 3 characters")
     args = p.parse_args()
+    print("Everything below was read on this computer. Nothing was sent anywhere.\n")
 
+    # Right now
+    now = current_ids(args.config, args.full_ids)
+    print("RIGHT NOW (from your settings file)")
+    if now is None:
+        print(f"  Couldn't read {args.config}. Use --config to point at it.")
+    elif not now:
+        print("  No cached experiment slots found, so this can't tell. That's not the same as 'no experiment'.")
+    for app, model, exp_id in now or []:
+        print(f"  {app}, {model}: {'no experiment' if exp_id == NO_ID else 'experiment ' + exp_id}")
+
+    # History
+    print("\nHISTORY (from your saved sessions)")
     files = sorted(args.dir.glob("*/*.jsonl"))
     if not files:
-        raise SystemExit(f"No session files found in {args.dir}. Use --dir to point at your Claude Code projects folder.")
+        print(f"  No session files found in {args.dir}. Use --dir to point at your Claude Code projects folder.")
+        return
     replies = read_replies(files, args.model)
-    print(f"Read {len(files)} session files on this computer: {len(replies)} {args.model} replies on the main thread.")
-    print("Nothing was sent anywhere.\n")
+    print(f"  {len(files)} session files, {len(replies)} {args.model} replies on the main thread.\n")
     if not replies:
         return
-    rows = summarise(replies, args.by)
+    rows = summarise(replies, args.by, args.full_ids)
     print_table(rows, args.by)
     print("\n'none' means no experiment was active. 'not recorded' means sessions from before Claude Code saved this.")
     print("A different ID only says you were in a test group. Compare its numbers with 'none' to see if anything changed.")
