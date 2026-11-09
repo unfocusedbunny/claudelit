@@ -126,7 +126,12 @@ body {
 .chart svg { display: block; width: 100%; overflow: visible; }
 /* No CSS glow on chart labels: Safari draws text-shadow on SVG text in the wrong place, as ghost copies. */
 svg text { font-family: var(--display); font-size: 17px; fill: var(--phosphor-mid); text-shadow: none; }
-svg .evlabel { fill: var(--phosphor); }
+svg .evlabel { fill: var(--phosphor); cursor: pointer; text-decoration: underline dotted; }
+svg .evlabel:hover { fill: var(--phosphor-mid); }
+svg .evlabel:focus-visible { outline: 2px dashed var(--phosphor); outline-offset: 2px; }
+.printout tr { scroll-margin-top: 48px; }  /* room for the sticky table header */
+.printout tr.flash td { background: var(--phosphor); color: var(--crimson); text-shadow: none; }
+.printout tr.flash a { color: var(--crimson); }
 svg .endlabel { fill: var(--phosphor); font-size: 19px; }
 svg .empty { fill: var(--phosphor-mid); font-size: 20px; }
 svg .grid { stroke: var(--phosphor-dim); stroke-width: 1; fill: none; }
@@ -387,7 +392,7 @@ function fillPrintouts() {
     return esc(e.source) + urls.map((u, i) => ' ' + a(u, `[${i + 1}]`)).join('');
   };
   $('#p-events').innerHTML = `<table><thead><tr><th>date</th><th>what happened</th><th>source</th></tr></thead><tbody>${
-    S.ev.map(e => `<tr><td>${short(e.t)}</td><td>${esc(e.detail)}</td><td class="muted">${sources(e)}</td></tr>`).join('')
+    S.ev.map((e, i) => `<tr id="ev-${i}"><td>${short(e.t)}</td><td>${esc(e.detail)}</td><td class="muted">${sources(e)}</td></tr>`).join('')
   }</tbody></table>`;
 }
 
@@ -406,13 +411,13 @@ function render() {
   const ctx = document.createElement('canvas').getContext('2d');
   ctx.font = `17px ${getComputedStyle(document.documentElement).getPropertyValue('--display')}`;
   const rowEnd = [];
-  const labels = S.ev.map(e => {
+  const labels = S.ev.map((e, i) => {
     const len = ctx.measureText(e.label).width;
     const left = Math.max(0, Math.min(w - len, xOf(e.t) - len / 2));
     let row = rowEnd.findIndex(end => left > end + 10);
     if (row < 0) row = rowEnd.length;
     rowEnd[row] = left + len;
-    return `<text class="evlabel" x="${left}" y="${14 + row * 18}">${esc(e.label)}</text>`;
+    return `<text class="evlabel" data-i="${i}" tabindex="0" role="button" aria-label="${esc(e.label)}: show details and sources" x="${left}" y="${14 + row * 18}">${esc(e.label)}</text>`;
   });
 
   // Panel 1: the mood line, with one pixel per complaint underneath.
@@ -437,7 +442,7 @@ function render() {
   S.days.forEach(d => { for (let k = 0; k < d.c; k++) g += `<rect class="px" x="${X(idx(d.t)) - sz / 2}" y="${sBot - (k + 1) * (sz + 2)}" width="${sz}" height="${sz}"/>`; });
   g += `<line class="base" x1="${ml}" x2="${w - mr}" y1="${sBot + 1}" y2="${sBot + 1}"/>`;
   g += `<line class="cross" x1="0" x2="0" y1="${top - 8}" y2="${sBot}" visibility="hidden"/>`;
-  g += `<rect class="hit" x="${ml}" y="0" width="${W}" height="${H1}"/>`;
+  g += `<rect class="hit" x="${ml}" y="${top - 8}" width="${W}" height="${H1 - top + 8}"/>`;  // starts below the labels, so they stay clickable
   $('#mood').innerHTML = `<svg width="${w}" height="${H1}" viewBox="0 0 ${w} ${H1}" role="presentation">${g}</svg>`;
 
   // Panel 2: LiveNerf test scores, on a 0 to 100% scale.
@@ -469,6 +474,10 @@ function render() {
   h += `<rect class="hit" x="${ml}" y="0" width="${W}" height="${b2}"/>`;
   $('#tests').innerHTML = `<svg width="${w}" height="${H2}" viewBox="0 0 ${w} ${H2}" role="presentation">${h}</svg>`;
 
+  document.querySelectorAll('#mood .evlabel').forEach(el => {
+    el.addEventListener('click', () => showEvent(+el.dataset.i));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); showEvent(+el.dataset.i); } });
+  });
   document.querySelectorAll('.chart .hit').forEach(hit => {
     hit.addEventListener('pointermove', e => {
       const r = hit.ownerSVGElement.getBoundingClientRect();
@@ -532,10 +541,10 @@ mood.addEventListener('keydown', e => {
 
 // Printouts: one open at a time, by click or by key.
 const keys = { t: 'p-table', i: 'p-issues', e: 'p-events', m: 'p-method' };
-function toggle(id) {
+function toggle(id, keepOpen = false) {
   let open = '';
   document.querySelectorAll('.key').forEach(b => {
-    const on = b.getAttribute('aria-controls') === id && b.getAttribute('aria-expanded') !== 'true';
+    const on = b.getAttribute('aria-controls') === id && (keepOpen || b.getAttribute('aria-expanded') !== 'true');
     b.setAttribute('aria-expanded', on);
     document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
     if (on) open = 'show ' + b.dataset.name;
@@ -543,6 +552,16 @@ function toggle(id) {
   $('#cmd').textContent = open;
 }
 document.querySelectorAll('.key').forEach(b => b.addEventListener('click', () => toggle(b.getAttribute('aria-controls'))));
+
+// Clicking a marker label opens the events printout and lights up that event.
+function showEvent(i) {
+  toggle('p-events', true);
+  const row = document.getElementById('ev-' + i);
+  if (!row) return;
+  row.classList.add('flash');
+  row.scrollIntoView({ block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+  setTimeout(() => row.classList.remove('flash'), 2400);
+}
 document.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea|select/i.test(e.target.tagName)) return;
   const id = keys[e.key.toLowerCase()];
