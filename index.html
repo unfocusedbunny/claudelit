@@ -16,6 +16,8 @@
 <meta property="og:image:height" content="627">
 <meta property="og:image:alt" content="An amber CRT-style page titled Claudelit, with a line chart of complaints about Claude Opus 5.5">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=VT323&display=swap">
@@ -84,6 +86,7 @@ body {
   letter-spacing: 0.06em;
 }
 .title-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 14px; }
+.title-logo { align-self: center; height: clamp(44px, 10vw, 104px); width: auto; margin-right: clamp(6px, 1.5vw, 18px); }
 .star { font-size: 0.42em; vertical-align: top; margin-left: 0.04em; }
 .aside {
   margin: 0.4em 0 0;
@@ -234,6 +237,7 @@ footer p { margin: 0; }
 <main class="crt">
   <header>
     <div class="title-row">
+      <img class="title-logo" src="icon.svg" alt="" width="112" height="80">
       <h1 class="title">CLAUDELIT<span class="star" aria-hidden="true">*</span></h1>
       <p class="aside">* gaslit but by claude</p>
     </div>
