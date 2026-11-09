@@ -1,4 +1,5 @@
 date,label,detail,source,source_url
 2026-09-22,launch,Claude Opus 5.5 released,LiveNerf README,https://github.com/ninjahawk/livenerf
+2026-10-10,a/b test dba?,"One Reddit user saw a hidden Claude Code experiment (ID dba) on 10 to 12 Oct, a weaker version of the later pattern. Not confirmed by Anthropic.","Reddit r/ClaudeCode, u/WuM1ha1nho (unconfirmed)",https://www.reddit.com/r/ClaudeCode/s/JEAfEYfr49
 2026-10-24,outage 11 min,Elevated errors on Claude Opus 5.5 from 00:23 to 00:34 UTC,Claude status page,
-2026-11-03,a/b test c0e?,"Some Claude Code users report a hidden A/B test (experiment c0e, 3 to 7 Nov) that changed how Opus 5.5 works for them: more tool calls, longer answers, more thinking. Not confirmed by Anthropic.","Reddit r/ClaudeCode, u/DerAlbi (unconfirmed)",
+2026-10-30,a/b tests?,"Two Reddit users report hidden Claude Code experiments on their accounts: 34e (30 Oct to 1 Nov), 763 (2 to 5 Nov), c0e (3 to 7 Nov) and eab (from 8 Nov). Under them Opus 5.5 used more tools per reply, longer commands and more thinking. Not confirmed by Anthropic.","Reddit r/ClaudeCode, u/WuM1ha1nho and u/DerAlbi (unconfirmed)",https://www.reddit.com/r/ClaudeCode/s/JEAfEYfr49 https://www.reddit.com/r/ClaudeCode/s/hR2f8tUSta

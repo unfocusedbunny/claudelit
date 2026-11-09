@@ -379,8 +379,15 @@ function fillPrintouts() {
   $('#p-issues').innerHTML = `<table><thead><tr><th>date</th><th>issue</th><th>title</th><th>matched</th></tr></thead><tbody>${
     S.issues.map(r => `<tr><td>${short(utc(r.date))}</td><td>${link(r.url, '#' + r.number)}</td><td>${esc(r.title)}</td><td class="muted">${esc(r.matched_words)}</td></tr>`).join('')
   }</tbody></table>`;
+  // source_url may hold several links separated by spaces: one link wraps the source name, several get [1] [2].
+  const sources = e => {
+    const urls = (e.source_url || '').split(/\s+/).filter(u => /^https:\/\//.test(u));
+    const a = (u, text) => `<a href="${esc(u)}" target="_blank" rel="noopener">${text}</a>`;
+    if (urls.length === 1) return a(urls[0], esc(e.source));
+    return esc(e.source) + urls.map((u, i) => ' ' + a(u, `[${i + 1}]`)).join('');
+  };
   $('#p-events').innerHTML = `<table><thead><tr><th>date</th><th>what happened</th><th>source</th></tr></thead><tbody>${
-    S.ev.map(e => `<tr><td>${short(e.t)}</td><td>${esc(e.detail)}</td><td class="muted">${/^https:\/\//.test(e.source_url) ? `<a href="${esc(e.source_url)}" target="_blank" rel="noopener">${esc(e.source)}</a>` : esc(e.source)}</td></tr>`).join('')
+    S.ev.map(e => `<tr><td>${short(e.t)}</td><td>${esc(e.detail)}</td><td class="muted">${sources(e)}</td></tr>`).join('')
   }</tbody></table>`;
 }
 
@@ -395,8 +402,21 @@ function render() {
   const weekLines = (y1, y2) => { let s = ''; for (let i = 0; i < S.span; i += 7) s += `<line class="grid" x1="${X(i)}" x2="${X(i)}" y1="${y1}" y2="${y2}"/>`; return s; };
   const eventLines = (y1, y2) => S.ev.map(e => `<line class="event" x1="${xOf(e.t)}" x2="${xOf(e.t)}" y1="${y1}" y2="${y2}"/>`).join('');
 
+  // Event labels: keep inside the frame, and stack into as many rows as needed so none overlap.
+  const ctx = document.createElement('canvas').getContext('2d');
+  ctx.font = `17px ${getComputedStyle(document.documentElement).getPropertyValue('--display')}`;
+  const rowEnd = [];
+  const labels = S.ev.map(e => {
+    const len = ctx.measureText(e.label).width;
+    const left = Math.max(0, Math.min(w - len, xOf(e.t) - len / 2));
+    let row = rowEnd.findIndex(end => left > end + 10);
+    if (row < 0) row = rowEnd.length;
+    rowEnd[row] = left + len;
+    return `<text class="evlabel" x="${left}" y="${14 + row * 18}">${esc(e.label)}</text>`;
+  });
+
   // Panel 1: the mood line, with one pixel per complaint underneath.
-  const H1 = 238, top = 44, bot = 178, sBot = 230;
+  const top = 44 + Math.max(0, rowEnd.length - 2) * 18, bot = top + 134, sBot = bot + 52, H1 = sBot + 8;
   const maxS = Math.max(...S.days.map(d => d.s7 ?? 0));
   const yStep = maxS <= 2 ? 0.5 : 1;
   const yMax = Math.max(yStep, Math.ceil(maxS / yStep) * yStep);
@@ -407,7 +427,7 @@ function render() {
     g += `<line class="grid" x1="${ml}" x2="${w - mr}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${ml - 8}" y="${Y(v) + 5}" text-anchor="end">${+v.toFixed(2)}%</text>`;
   }
   g += eventLines(top - 8, sBot);
-  g += S.ev.map(e => `<text class="evlabel" data-x="${xOf(e.t)}" x="${xOf(e.t)}" y="14">${esc(e.label)}</text>`).join('');
+  g += labels.join('');
   const pts = [];
   S.days.forEach(d => { if (d.s7 != null) pts.push([X(idx(d.t)), Y(d.s7)]); });
   g += `<path class="trace" d="M${pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('L')}"/>`;
@@ -419,17 +439,6 @@ function render() {
   g += `<line class="cross" x1="0" x2="0" y1="${top - 8}" y2="${sBot}" visibility="hidden"/>`;
   g += `<rect class="hit" x="${ml}" y="0" width="${W}" height="${H1}"/>`;
   $('#mood').innerHTML = `<svg width="${w}" height="${H1}" viewBox="0 0 ${w} ${H1}" role="presentation">${g}</svg>`;
-
-  // Event labels: keep inside the frame, and drop to a second row when two would overlap.
-  let rowEnd = [-Infinity, -Infinity];
-  $('#mood').querySelectorAll('.evlabel').forEach(el => {
-    const len = el.getComputedTextLength();
-    const left = Math.max(0, Math.min(w - len, +el.dataset.x - len / 2));
-    const row = left > rowEnd[0] + 10 ? 0 : 1;
-    el.setAttribute('x', left);
-    el.setAttribute('y', row ? 32 : 14);
-    rowEnd[row] = left + len;
-  });
 
   // Panel 2: LiveNerf test scores, on a 0 to 100% scale.
   const H2 = 176, t2 = 10, b2 = 142;
