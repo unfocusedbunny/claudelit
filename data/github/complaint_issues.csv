@@ -42,7 +42,6 @@ date,number,title,url,matched_words,mentions_opus_5_5,state
 2026-11-02,106741,"[Bug] Opus 5.5 excessive token usage, ignores instructions, and produces low-quality output",https://github.com/anthropics/claude-code/issues/106741,low quality,True,open
 2026-11-02,106812,[Bug] Output quality regression: responses degraded to GPT-3.5-level,https://github.com/anthropics/claude-code/issues/106812,degraded; quality regression; output quality,False,open
 2026-11-03,106938,[Bug] Frequent incorrect self-acknowledged errors and quality regression over past two weeks,https://github.com/anthropics/claude-code/issues/106938,quality regression,False,open
-2026-11-03,107025,[Bug] Inconsistent output quality and faster-than-expected usage limit consumption,https://github.com/anthropics/claude-code/issues/107025,output quality,False,open
 2026-11-03,107049,"[Bug] Session quality degraded: poor assumptions, responses, and comprehension",https://github.com/anthropics/claude-code/issues/107049,degraded,False,open
 2026-11-05,107497,"[BUG] Auto mode degrades after short periods of reliability — reverts to Manual, ignores settings, blocks unattended runs",https://github.com/anthropics/claude-code/issues/107497,degrades,False,open
 2026-11-06,108042,Fable's long-session quality degrades: more rule violations per hour as the session grows,https://github.com/anthropics/claude-code/issues/108042,degrades,False,open
