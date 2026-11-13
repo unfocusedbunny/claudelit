@@ -46,3 +46,4 @@ date,number,title,url,matched_words,mentions_opus_5_5,state
 2026-11-05,107497,"[BUG] Auto mode degrades after short periods of reliability — reverts to Manual, ignores settings, blocks unattended runs",https://github.com/anthropics/claude-code/issues/107497,degrades,False,open
 2026-11-06,108042,Fable's long-session quality degrades: more rule violations per hour as the session grows,https://github.com/anthropics/claude-code/issues/108042,degrades,False,open
 2026-11-11,109075,[Bug] Claude Code output quality regressing: weaker context retention and judgment,https://github.com/anthropics/claude-code/issues/109075,output quality,False,open
+2026-11-12,109396,[Bug] Agent severely degraded after enabling ultramode with max effort,https://github.com/anthropics/claude-code/issues/109396,degraded,False,open
