@@ -38,7 +38,7 @@ date,number,title,url,matched_words,mentions_opus_5_5,state
 2026-10-26,105271,"[Bug] Excessive token usage and degraded output quality, followed by API error",https://github.com/anthropics/claude-code/issues/105271,degraded; output quality,False,closed
 2026-10-28,105660,Bug Report: Model Output Perceived as Lazy and Low Quality,https://github.com/anthropics/claude-code/issues/105660,low quality,False,closed
 2026-11-01,106587,[Bug] Opus 5.5 performance degraded in long orchestration sessions,https://github.com/anthropics/claude-code/issues/106587,degraded,True,open
-2026-11-02,106660,[Bug] Poor Code Quality from Opus 5.5 and Fable 5.1 Models Despite Explicit Testing Instructions,https://github.com/anthropics/claude-code/issues/106660,(near match),True,open
+2026-11-02,106660,[Bug] Poor Code Quality from Opus 5.5 and Fable 5.1 Models Despite Explicit Testing Instructions,https://github.com/anthropics/claude-code/issues/106660,(near match),True,closed
 2026-11-02,106741,"[Bug] Opus 5.5 excessive token usage, ignores instructions, and produces low-quality output",https://github.com/anthropics/claude-code/issues/106741,low quality,True,open
 2026-11-02,106812,[Bug] Output quality regression: responses degraded to GPT-3.5-level,https://github.com/anthropics/claude-code/issues/106812,degraded; quality regression; output quality,False,open
 2026-11-03,106938,[Bug] Frequent incorrect self-acknowledged errors and quality regression over past two weeks,https://github.com/anthropics/claude-code/issues/106938,quality regression,False,open
