@@ -2,7 +2,7 @@ date,number,title,url,matched_words,mentions_opus_5_5,state
 2026-09-22,95983,[Bug] Performance degradation and increased error rate in code generation,https://github.com/anthropics/claude-code/issues/95983,degradation,False,closed
 2026-09-22,96140,[Bug] Poor Code Generation Quality and Insufficient Task Completion,https://github.com/anthropics/claude-code/issues/96140,(near match),False,closed
 2026-09-22,96178,Opus 4.6 regression: hallucinating dates and degraded accuracy after recent update,https://github.com/anthropics/claude-code/issues/96178,degraded,False,open
-2026-09-22,96179,Opus 4.6 regression since ~Sep 16: hallucinating dates and degraded accuracy,https://github.com/anthropics/claude-code/issues/96179,degraded,False,open
+2026-09-22,96179,Opus 4.6 regression since ~Sep 16: hallucinating dates and degraded accuracy,https://github.com/anthropics/claude-code/issues/96179,degraded,False,closed
 2026-09-22,96182,"Opus 4.6 regression since ~Sep 16 2026: precision loss, hallucinations, personality degradation",https://github.com/anthropics/claude-code/issues/96182,degradation,False,open
 2026-09-23,96205,[Bug] Opus 5.5 performance degradation - model output quality significantly below expected baseline,https://github.com/anthropics/claude-code/issues/96205,degradation; output quality,True,open
 2026-09-23,96267,[Bug] Output quality inconsistent: verbose technical jargon without summaries in multiple languages,https://github.com/anthropics/claude-code/issues/96267,output quality,False,open
@@ -48,3 +48,4 @@ date,number,title,url,matched_words,mentions_opus_5_5,state
 2026-11-11,109075,[Bug] Claude Code output quality regressing: weaker context retention and judgment,https://github.com/anthropics/claude-code/issues/109075,output quality,False,open
 2026-11-12,109396,[Bug] Agent severely degraded after enabling ultramode with max effort,https://github.com/anthropics/claude-code/issues/109396,degraded,False,open
 2026-11-15,110248,[BUG] Opus 5.5: extreme degradation of work quality after Fable 5.2 release,https://github.com/anthropics/claude-code/issues/110248,degradation,True,open
+2026-11-20,111315,"[BUG] [BUG] Severe Claude Code Pro usage degradation: 3 rate limits in 12 hours, repeated failures, ignored instructions and endless debugging loops",https://github.com/anthropics/claude-code/issues/111315,degradation,False,open
