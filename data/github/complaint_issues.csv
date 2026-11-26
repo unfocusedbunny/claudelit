@@ -49,3 +49,4 @@ date,number,title,url,matched_words,mentions_opus_5_5,state
 2026-11-12,109396,[Bug] Agent severely degraded after enabling ultramode with max effort,https://github.com/anthropics/claude-code/issues/109396,degraded,False,open
 2026-11-15,110248,[BUG] Opus 5.5: extreme degradation of work quality after Fable 5.2 release,https://github.com/anthropics/claude-code/issues/110248,degradation,True,closed
 2026-11-20,111315,"[BUG] [BUG] Severe Claude Code Pro usage degradation: 3 rate limits in 12 hours, repeated failures, ignored instructions and endless debugging loops",https://github.com/anthropics/claude-code/issues/111315,degradation,False,open
+2026-11-25,112157,The output quality increased tremendously however recently I am burning a way l…,https://github.com/anthropics/claude-code/issues/112157,output quality,True,open
